@@ -1,6 +1,7 @@
 # Agent Pet
 
-一隻住在桌面的貓咪，當 Claude Code 思考或執行指令時會動起來。
+一隻住在桌面的寵物，當 Claude Code 思考或執行指令時會動起來。
+限 Mac
 
 ## 效果
 
@@ -56,8 +57,6 @@ venv/bin/pip install -r requirements.txt
 }
 ```
 
-> 修改 settings.json 後需重新開啟 Claude Code session 才會生效。
-
 ### 3. 啟動
 
 ```bash
@@ -101,4 +100,4 @@ venv/bin/python3 pet.py --idle ~/my-cat.png --busy ~/my-cat-run.gif
 Claude 回覆完畢 → Stop hook           → echo 0 > /tmp/claude_busy → 回靜態圖
 ```
 
-pet.py 每 80ms 輪詢 `/tmp/claude_busy`，偵測到變化即切換圖片。
+pet.py 每 1000ms 輪詢 `/tmp/claude_busy`，偵測到變化即切換圖片。
