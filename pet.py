@@ -9,6 +9,8 @@ State file:  /tmp/claude_busy  (1 = busy, 0 or missing = idle)
 """
 
 import argparse
+import ctypes
+import ctypes.util
 import sys
 from pathlib import Path
 
@@ -102,7 +104,7 @@ class PetWindow(QWidget):
         self._drag_pos = None
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() == Qt.MouseButton.RightButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             QApplication.quit()
 
     def contextMenuEvent(self, event):
@@ -110,6 +112,19 @@ class PetWindow(QWidget):
 
 
 # ----------------------------------------------------------------------
+def _pin_to_all_spaces(win_id: int) -> None:
+    """Set NSWindowCollectionBehaviorCanJoinAllSpaces so the window appears on every macOS Space."""
+    if sys.platform != "darwin":
+        return
+    objc = ctypes.cdll.LoadLibrary(ctypes.util.find_library("objc"))
+    objc.sel_registerName.restype = ctypes.c_void_p
+    objc.objc_msgSend.restype = ctypes.c_void_p
+    objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    ns_window = objc.objc_msgSend(win_id, objc.sel_registerName(b"window"))
+    objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong]
+    objc.objc_msgSend(ns_window, objc.sel_registerName(b"setCollectionBehavior:"), ctypes.c_ulong(1))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Desktop pet that reacts to Claude")
     parser.add_argument("--idle", default=str(DEFAULT_IDLE), help="Static image path")
@@ -123,6 +138,7 @@ def main():
 
     win = PetWindow(Path(args.idle), Path(args.busy), args.width, args.height)
     win.show()
+    _pin_to_all_spaces(int(win.winId()))
 
     sys.exit(app.exec())
 
