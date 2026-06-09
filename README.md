@@ -101,3 +101,17 @@ Claude 回覆完畢 → Stop hook           → echo 0 > /tmp/claude_busy → �
 ```
 
 pet.py 每 1000ms 輪詢 `/tmp/claude_busy`，偵測到變化即切換圖片。
+
+## 打包成 macOS App
+
+安裝 PyInstaller 並產生 `dist/AgentPet.app`：
+
+```bash
+venv/bin/pip install pyinstaller
+venv/bin/pyinstaller --onedir --windowed \
+  --add-data "assets:assets" \
+  --icon "assets/AgentPet.icns" \
+  --name "AgentPet" -y pet.py
+```
+
+完成後將 `dist/AgentPet.app` 拖入 `/Applications` 即可直接使用。
